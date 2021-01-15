@@ -9,17 +9,19 @@ jobs:
   nanoc:
     runs-on: ubuntu-20.04
     steps:
-      - name: setup
+      - name: checkout code
         uses: actions/checkout@v2
-      - name: 💎 setup ruby
+      - name: setup ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7'
-      - name: install dependencies & build site
+      - name: install dependencies
         run: |
-          bundle install
+          bundle install --jobs 4 --retry 3
+      - name: build site
+        run: |
           nanoc
-      - name: 🚀 deploy
+      - name: deploy site
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
