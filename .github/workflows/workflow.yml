@@ -21,10 +21,12 @@ jobs:
       - name: build site
         run: |
           nanoc
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
       - name: deploy site
         uses: peaceiris/actions-gh-pages@v3
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           external_repository: jwillemsen/testpages
           publish_dir: output
-          publish_branch: ${{ github.ref }}
+          publish_branch: ${{ env.GITHUB_REF_SLUG }}
