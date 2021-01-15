@@ -1,0 +1,18 @@
+---
+title: 404 - Pagina niet gevonden!
+page: 404
+---
+
+<div class="col-lg-8">
+  <%= @items['/texts/404/'].compiled_content %>
+</div>
+
+<div class="col-lg-4">
+  <aside class="right-sidebar">
+    <div class="widget">
+      <i class="fa fa-exclamation fa-5x" title="404"></i>
+    </div>
+
+    <%= @items['/texts/sidebar/404/'].compiled_content if @items['/texts/sidebar/404/'] %>
+  </aside>
+</div>

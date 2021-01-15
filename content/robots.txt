@@ -1,0 +1,6 @@
+
+User-agent: *
+
+Sitemap: http://www.stalderoodwilligen.nl/sitemap.xml
+
+Host: www.stalderoodwilligen.nl

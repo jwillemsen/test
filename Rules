@@ -1,0 +1,97 @@
+#!/usr/bin/env ruby
+
+# A few helpful tips about the Rules file:
+#
+# * The string given to #compile and #route are matching patterns for
+#   identifiers--not for paths. Therefore, you can’t match on extension.
+#
+# * The order of rules is important: for each item, only the first matching
+#   rule is applied.
+#
+# * Item identifiers start and end with a slash (e.g. “/about/” for the file
+#   “content/about.html”). To select all children, grandchildren, … of an
+#   item, use the pattern “/about/*/”; “/about/*” will also select the parent,
+#   because “*” matches zero or more characters.
+
+unless defined? LOADED_DEFAULT_CONFIG
+  LOADED_DEFAULT_CONFIG = true
+  require 'compass'
+  Compass.add_project_configuration 'config.rb'
+end
+
+passthrough '/assets/fonts/*/'
+passthrough '/assets/docs/**'
+
+compile '/assets/js/*' do
+  nil # no processing
+end
+
+compile '/assets/style/fancybox/**/*' do
+  nil # no processing
+end
+
+compile '*' do
+  if item.identifier.chop =~ /htaccess\Z/
+    nil # no processing
+  elsif item[:extension] == 'css' || item[:extension] == 'min.css'
+    filter :rainpress
+  elsif item[:extension] == 'scss'
+    filter :sass, Compass.sass_engine_options
+    filter :rainpress
+  elsif item[:extension] == 'adoc' || item[:extension] == 'ad'
+    filter :asciidoctor, :backend => :html5, :base_dir => File.join(File.dirname(__FILE__), 'config')
+  elsif item[:extension] == 'erb'
+    filter :erb
+  elsif item[:extension] == 'erb.xml'
+    filter :erb
+  elsif item.binary? || item[:extension] == 'txt'
+    # don’t filter binary or plain text items
+  else
+    filter :erb
+    layout 'default'
+  end
+end
+
+route '/assets/**/_*' do
+  nil # no routing
+end
+
+route '/assets/js/*' do
+  # Write item with identifier /foo/ to /foo.ext
+  item.identifier.chop + '.' + item[:extension]
+end
+
+route '/assets/style/fancybox/**/*' do
+  # Write item with identifier /foo/ to /foo.ext
+  item.identifier.chop + '.' + item[:extension]
+end
+
+route /(\/.*)?\/texts\/.*/ do
+  nil # no routing
+end
+
+route '*' do
+  if item.identifier.chop =~ /htaccess\Z/
+    item[:is_hidden] = true
+    item.identifier.chop.gsub(/htaccess\Z/, '.htaccess')
+  elsif item[:extension] == 'css' || item[:extension] == 'scss'
+    # Write item with identifier /foo/ to /foo.css
+    item.identifier.chop + '.css'
+  elsif item[:extension] == 'min.css'
+    item.identifier.chop + '.min.css'
+  elsif item[:extension] == 'erb'
+    nil
+  elsif item[:extension] == 'erb.html'
+    item.identifier.chop + '.html'
+  elsif item[:extension] == 'erb.xml'
+    item.identifier.chop + '.xml'
+  elsif item.binary? || item[:extension] == 'txt'
+    # Write item with identifier /foo/ to /foo.ext
+    item.identifier.chop + '.' + item[:extension]
+  else
+    # Write item with identifier /foo/ to /foo/index.html
+    item.identifier + 'index.html'
+  end
+end
+
+layout '*', :erb
