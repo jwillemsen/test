@@ -2,8 +2,6 @@ name: Build and deploy nanoc
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   nanoc:
